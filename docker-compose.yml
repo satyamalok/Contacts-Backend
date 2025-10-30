@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: contacts-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-contacts_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - contacts-network
+
+  # Redis (for pub/sub and caching)
+  redis:
+    image: redis:7-alpine
+    container_name: contacts-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - contacts-network
+
+  # Node.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: contacts-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+      HOST: ${HOST:-0.0.0.0}
+
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-contacts_db}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_POOL_MIN: ${DB_POOL_MIN:-2}
+      DB_POOL_MAX: ${DB_POOL_MAX:-10}
+
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
+      # Application
+      API_KEY_SALT: ${API_KEY_SALT:-change-this-in-production}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+
+      # WebSocket
+      WS_PING_INTERVAL: ${WS_PING_INTERVAL:-25000}
+      WS_PING_TIMEOUT: ${WS_PING_TIMEOUT:-60000}
+
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - contacts-network
+    command: sh -c "
+      echo 'Waiting for database...' &&
+      sleep 5 &&
+      echo 'Running database migrations...' &&
+      node -r tsx/cjs database/migrations/run.ts &&
+      echo 'Starting application...' &&
+      node dist/app.js
+      "
+
+  # Frontend (Optional - React app)
+  # Uncomment when frontend is ready
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: contacts-frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - app
+  #   environment:
+  #     REACT_APP_API_URL: http://localhost:3000
+  #     REACT_APP_WS_URL: ws://localhost:3000
+  #   networks:
+  #     - contacts-network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  contacts-network:
+    driver: bridge

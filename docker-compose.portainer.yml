@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: contacts-sync-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-contacts_db}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - contacts_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - contacts-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: contacts-sync-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes ${REDIS_PASSWORD:+--requirepass $REDIS_PASSWORD}
+    volumes:
+      - contacts_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - contacts-network
+
+  # Contacts Backend Application
+  app:
+    build:
+      context: https://github.com/satyamalok/Contacts-Backend.git
+      dockerfile: Dockerfile
+      args:
+        - NODE_ENV=production
+    image: contacts-sync-backend:latest
+    container_name: contacts-sync-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Application
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+      HOST: ${HOST:-0.0.0.0}
+
+      # Database
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-contacts_db}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_POOL_MIN: ${DB_POOL_MIN:-2}
+      DB_POOL_MAX: ${DB_POOL_MAX:-10}
+
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
+      # Security
+      API_KEY_SALT: ${API_KEY_SALT}
+
+      # Logging
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+      # CORS
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+
+      # WebSocket
+      WS_PING_INTERVAL: ${WS_PING_INTERVAL:-25000}
+      WS_PING_TIMEOUT: ${WS_PING_TIMEOUT:-60000}
+
+      # Frontend
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - contacts_logs:/app/logs
+    networks:
+      - contacts-network
+    command: sh -c "
+      echo 'Waiting for database to be ready...' &&
+      sleep 5 &&
+      echo 'Running database migrations...' &&
+      node -r tsx/cjs database/migrations/run.ts &&
+      echo 'Starting Contacts Sync Backend...' &&
+      node dist/app.js
+      "
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1); })"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  contacts_postgres_data:
+    driver: local
+  contacts_redis_data:
+    driver: local
+  contacts_logs:
+    driver: local
+
+networks:
+  contacts-network:
+    driver: bridge

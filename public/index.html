@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contacts Sync - Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>Contacts Sync Dashboard</h1>
+            <div class="header-actions">
+                <button id="refreshBtn" class="btn btn-secondary">Refresh</button>
+                <button id="logoutBtn" class="btn btn-danger">Logout</button>
+            </div>
+        </header>
+
+        <!-- Login Form -->
+        <div id="loginSection" class="login-section">
+            <div class="login-card">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="apiKey">API Key</label>
+                        <input type="password" id="apiKey" class="form-control" placeholder="sk_xxxxxxxxxxxxx" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </form>
+                <div class="login-help">
+                    <p>Don't have an API key? Register an agent using the API.</p>
+                    <a href="/docs" target="_blank">View API Documentation</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboardSection" class="dashboard-section" style="display: none;">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="contacts">Contacts</button>
+                <button class="tab-btn" data-tab="devices">Devices</button>
+                <button class="tab-btn" data-tab="stats">Statistics</button>
+            </div>
+
+            <!-- Contacts Tab -->
+            <div id="contactsTab" class="tab-content active">
+                <div class="tab-header">
+                    <h2>Contacts Management</h2>
+                    <div class="actions">
+                        <input type="text" id="searchInput" class="form-control search-input" placeholder="Search contacts...">
+                        <button id="addContactBtn" class="btn btn-primary">Add Contact</button>
+                        <button id="exportBtn" class="btn btn-secondary">Export CSV</button>
+                        <button id="importBtn" class="btn btn-secondary">Import</button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Phone Primary</th>
+                                <th>Phone Secondary</th>
+                                <th>Created By</th>
+                                <th>Updated</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contactsTableBody">
+                            <tr>
+                                <td colspan="7" class="text-center">Loading contacts...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="pagination" id="contactsPagination"></div>
+            </div>
+
+            <!-- Devices Tab -->
+            <div id="devicesTab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Device Monitoring</h2>
+                </div>
+
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h3 id="devicesOnline">0</h3>
+                        <p>Online</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="devicesIdle">0</h3>
+                        <p>Idle</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="devicesOffline">0</h3>
+                        <p>Offline</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="devicesOutdated">0</h3>
+                        <p>Outdated</p>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Device ID</th>
+                                <th>Agent</th>
+                                <th>Status</th>
+                                <th>Last Sync</th>
+                                <th>Version</th>
+                                <th>Behind</th>
+                            </tr>
+                        </thead>
+                        <tbody id="devicesTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center">Loading devices...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div id="statsTab" class="tab-content">
+                <div class="tab-header">
+                    <h2>Statistics</h2>
+                </div>
+
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h3 id="totalContacts">0</h3>
+                        <p>Total Contacts</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalAgents">0</h3>
+                        <p>Total Agents</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="currentVersion">0</h3>
+                        <p>Current Version</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="totalDevices">0</h3>
+                        <p>Total Devices</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contact Modal -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Contact</h2>
+                <span class="close">&times;</span>
+            </div>
+            <form id="contactForm">
+                <div class="form-group">
+                    <label for="firstName">First Name *</label>
+                    <input type="text" id="firstName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name *</label>
+                    <input type="text" id="lastName" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="phonePrimary">Phone Primary</label>
+                    <input type="tel" id="phonePrimary" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="phoneSecondary">Phone Secondary</label>
+                    <input type="tel" id="phoneSecondary" class="form-control">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
