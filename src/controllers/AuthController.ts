@@ -91,7 +91,7 @@ export class AuthController {
    * GET /api/auth/agents
    * Get all agents (for admin purposes)
    */
-  static async getAllAgents(request: FastifyRequest, reply: FastifyReply) {
+  static async getAllAgents(_request: FastifyRequest, reply: FastifyReply) {
     try {
       const agents = await AgentModel.findAll();
 

@@ -6,7 +6,7 @@ export class DeviceController {
   /**
    * GET /api/devices
    */
-  static async getAllDevices(request: FastifyRequest, reply: FastifyReply) {
+  static async getAllDevices(_request: FastifyRequest, reply: FastifyReply) {
     try {
       const devices = await DeviceService.getAllDeviceStatus();
 
@@ -73,7 +73,7 @@ export class DeviceController {
   /**
    * GET /api/devices/stats
    */
-  static async getDeviceStats(request: FastifyRequest, reply: FastifyReply) {
+  static async getDeviceStats(_request: FastifyRequest, reply: FastifyReply) {
     try {
       const stats = await DeviceService.getSyncStats();
 
@@ -93,7 +93,7 @@ export class DeviceController {
   /**
    * GET /api/devices/health
    */
-  static async getDeviceHealth(request: FastifyRequest, reply: FastifyReply) {
+  static async getDeviceHealth(_request: FastifyRequest, reply: FastifyReply) {
     try {
       const health = await DeviceService.getDeviceHealthSummary();
 

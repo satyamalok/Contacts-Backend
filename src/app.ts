@@ -74,7 +74,7 @@ fastify.register(fastifyStatic, {
 });
 
 // Health check
-fastify.get('/health', async (request, reply) => {
+fastify.get('/health', async () => {
   const dbHealthy = await db.testConnection();
 
   return {

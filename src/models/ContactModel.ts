@@ -76,7 +76,7 @@ export class ContactModel {
     });
   }
 
-  static async update(id: string, data: UpdateContactRequest, agentCode: string): Promise<Contact | null> {
+  static async update(id: string, data: UpdateContactRequest, _agentCode: string): Promise<Contact | null> {
     return await db.transaction(async (client) => {
       // Get next version
       const versionResult = await client.query('SELECT get_next_version() as version');
@@ -135,7 +135,7 @@ export class ContactModel {
         [version, id]
       );
 
-      return result.rowCount > 0;
+      return (result.rowCount ?? 0) > 0;
     });
   }
 

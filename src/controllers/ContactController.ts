@@ -242,7 +242,7 @@ export class ContactController {
   /**
    * GET /api/contacts/stats
    */
-  static async getStats(request: FastifyRequest, reply: FastifyReply) {
+  static async getStats(_request: FastifyRequest, reply: FastifyReply) {
     try {
       const stats = await ContactService.getStats();
 

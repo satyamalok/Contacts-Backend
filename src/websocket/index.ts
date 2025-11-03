@@ -1,5 +1,5 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { Server as FastifyInstance } from 'fastify';
+import { FastifyInstance } from 'fastify';
 import { AgentModel } from '../models/AgentModel';
 import { ContactService } from '../services/ContactService';
 import {
