@@ -31,7 +31,9 @@ RUN npm install --omit=dev && npm cache clean --force
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/database/migrations/*.sql ./database/migrations/
+
+# Copy SQL files to same location as compiled migration runner
+COPY --from=builder /app/database/migrations/*.sql ./dist/database/migrations/
 
 # Copy public folder for frontend dashboard
 COPY public ./public

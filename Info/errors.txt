@@ -1,0 +1,44 @@
+root@vmi2649503:~# docker exec -it contacts-db psql -U postgres -d contacts_db
+psql (15.14)
+Type "help" for help.
+
+contacts_db=# \dt
+           List of relations
+ Schema |    Name    | Type  |  Owner   
+--------+------------+-------+----------
+ public | migrations | table | postgres
+(1 row)
+
+contacts_db=# \q
+root@vmi2649503:~# docker compose logs app --tail 50
+no configuration file provided: not found
+root@vmi2649503:~# cd ~/Contacts-Backend
+root@vmi2649503:~/Contacts-Backend# docker compose logs app --tail 50
+WARN[0000] /root/Contacts-Backend/docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion 
+contacts-backend  | Waiting for database...
+contacts-backend  | Running database migrations...
+contacts-backend  | Starting database migrations...
+contacts-backend  | All migrations completed successfully!
+contacts-backend  | Starting application...
+contacts-backend  | 2025-11-03 04:48:58 [info]: Testing database connection...
+contacts-backend  | 2025-11-03 04:48:58 [info]: New database connection established
+contacts-backend  | 2025-11-03 04:48:58 [info]: Database connection test successful {"time":"2025-11-03T04:48:58.912Z"}
+contacts-backend  | 2025-11-03 04:48:58 [info]: WebSocket manager initialized
+contacts-backend  | 2025-11-03 04:48:59 [info]: Server listening on http://0.0.0.0:3000
+contacts-backend  | 2025-11-03 04:48:59 [info]: API Documentation: http://0.0.0.0:3000/docs
+contacts-backend  | 2025-11-03 04:48:59 [info]: Environment: development
+contacts-backend  | 2025-11-03 04:49:55 [error]: Database query error: {"text":"SELECT * FROM agents WHERE api_key = $1","error":{"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable"}}
+contacts-backend  | 2025-11-03 04:49:55 [error]: Authentication error: relation "agents" does not exist {"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable","stack":"error: relation \"agents\" does not exist\n    at /app/node_modules/pg-pool/index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Database.query (/app/dist/config/database.js:38:28)\n    at async AgentModel.findByApiKey (/app/dist/models/AgentModel.js:7:24)\n    at async Object.authenticate (/app/dist/middleware/auth.js:16:23)"}
+contacts-backend  | 2025-11-03 04:50:13 [info]: New database connection established
+contacts-backend  | 2025-11-03 04:50:13 [error]: Database query error: {"text":"SELECT * FROM agents WHERE api_key = $1","error":{"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable"}}
+contacts-backend  | 2025-11-03 04:50:13 [error]: Authentication error: relation "agents" does not exist {"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable","stack":"error: relation \"agents\" does not exist\n    at /app/node_modules/pg-pool/index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Database.query (/app/dist/config/database.js:38:28)\n    at async AgentModel.findByApiKey (/app/dist/models/AgentModel.js:7:24)\n    at async Object.authenticate (/app/dist/middleware/auth.js:16:23)"}
+contacts-backend  | 2025-11-03 04:50:22 [info]: New database connection established
+contacts-backend  | 2025-11-03 04:50:22 [error]: Database query error: {"text":"SELECT * FROM agents WHERE api_key = $1","error":{"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable"}}
+contacts-backend  | 2025-11-03 04:50:22 [error]: Authentication error: relation "agents" does not exist {"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable","stack":"error: relation \"agents\" does not exist\n    at /app/node_modules/pg-pool/index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Database.query (/app/dist/config/database.js:38:28)\n    at async AgentModel.findByApiKey (/app/dist/models/AgentModel.js:7:24)\n    at async Object.authenticate (/app/dist/middleware/auth.js:16:23)"}
+contacts-backend  | 2025-11-03 06:06:51 [info]: New database connection established
+contacts-backend  | 2025-11-03 06:06:51 [error]: Database query error: {"text":"SELECT * FROM agents WHERE agent_code = $1","error":{"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable"}}
+contacts-backend  | 2025-11-03 06:06:51 [error]: Register agent error: relation "agents" does not exist {"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable","stack":"error: relation \"agents\" does not exist\n    at /app/node_modules/pg-pool/index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Database.query (/app/dist/config/database.js:38:28)\n    at async AgentModel.findByAgentCode (/app/dist/models/AgentModel.js:11:24)\n    at async Object.registerAgent (/app/dist/controllers/AuthController.js:22:30)"}
+contacts-backend  | 2025-11-03 06:07:43 [info]: New database connection established
+contacts-backend  | 2025-11-03 06:07:43 [error]: Database query error: {"text":"SELECT * FROM agents WHERE agent_code = $1","error":{"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable"}}
+contacts-backend  | 2025-11-03 06:07:43 [error]: Register agent error: relation "agents" does not exist {"length":105,"name":"error","severity":"ERROR","code":"42P01","position":"15","file":"parse_relation.c","line":"1392","routine":"parserOpenTable","stack":"error: relation \"agents\" does not exist\n    at /app/node_modules/pg-pool/index.js:45:11\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)\n    at async Database.query (/app/dist/config/database.js:38:28)\n    at async AgentModel.findByAgentCode (/app/dist/models/AgentModel.js:11:24)\n    at async Object.registerAgent (/app/dist/controllers/AuthController.js:22:30)"}
+root@vmi2649503:~/Contacts-Backend# 
