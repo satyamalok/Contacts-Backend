@@ -138,15 +138,12 @@ const start = async () => {
       throw new Error('Failed to connect to database');
     }
 
-    // Initialize WebSocket manager
-    await fastify.ready();
+    // Initialize WebSocket manager BEFORE starting server
     const wsManager = new WebSocketManager(fastify);
+    fastify.decorate('wsManager', wsManager);
     logger.info('WebSocket manager initialized');
 
-    // Store WebSocket manager in Fastify instance
-    fastify.decorate('wsManager', wsManager);
-
-    // Start server
+    // Start server (ready() is called automatically by listen())
     await fastify.listen({
       port: config.port,
       host: config.host,
