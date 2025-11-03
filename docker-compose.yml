@@ -94,7 +94,7 @@ services:
       echo 'Waiting for database...' &&
       sleep 5 &&
       echo 'Running database migrations...' &&
-      node -r tsx/cjs database/migrations/run.ts &&
+      node dist/database/migrations/run.js &&
       echo 'Starting application...' &&
       node dist/app.js
       "

@@ -16,8 +16,9 @@ RUN npm install
 COPY src ./src
 COPY database ./database
 
-# Build TypeScript
-RUN npm run build
+# Build TypeScript (compile both src and database)
+RUN npx tsc --project tsconfig.json && \
+    npx tsc database/migrations/run.ts --outDir dist/database/migrations --esModuleInterop --moduleResolution node --module commonjs --target ES2022 --skipLibCheck
 
 # Stage 2: Production stage
 FROM node:18-alpine AS production
@@ -30,7 +31,7 @@ RUN npm install --omit=dev && npm cache clean --force
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/database ./database
+COPY --from=builder /app/database/migrations/*.sql ./database/migrations/
 
 # Create logs directory
 RUN mkdir -p logs
