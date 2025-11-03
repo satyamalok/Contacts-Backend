@@ -33,6 +33,9 @@ RUN npm install --omit=dev && npm cache clean --force
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/database/migrations/*.sql ./database/migrations/
 
+# Copy public folder for frontend dashboard
+COPY public ./public
+
 # Create logs directory
 RUN mkdir -p logs
 
