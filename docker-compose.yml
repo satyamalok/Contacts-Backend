@@ -10,8 +10,9 @@ services:
       POSTGRES_DB: ${DB_NAME:-contacts_db}
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-    ports:
-      - "${DB_PORT:-5432}:5432"
+    # Don't expose port to host - keep internal to Docker network only
+    # ports:
+    #   - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -28,8 +29,9 @@ services:
     container_name: contacts-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
+    # Don't expose port to host - keep internal to Docker network only
+    # ports:
+    #   - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis_data:/data
     healthcheck:
